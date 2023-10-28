@@ -1,0 +1,20 @@
+{
+    "name": "todo-list-server",
+    "version": "1.0.0",
+    "description": "Server for to-do list app",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/AniketUmredkar/todo-list-server.git"
+    },
+    "author": "Aniket Umredkar",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/AniketUmredkar/todo-list-server/issues"
+    },
+    "homepage": "https://github.com/AniketUmredkar/todo-list-server#readme"
+}
