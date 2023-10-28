@@ -59,15 +59,20 @@ exports.getAllTasksController = (req, res) => {
 exports.editTaskController = (req, res) => {
     const taskId = req.params.taskId;
     const title = req.body.title;
-    Task.update(
-        { title: title },
-        {
-            where: {
-                id: taskId,
-                user_id: user_id,
-            },
-        }
-    )
+    const completed = req.body.completed;
+    const updateObj = {};
+    if (title != undefined) {
+        updateObj.title = title;
+    }
+    if (completed != undefined) {
+        updateObj.completed = completed;
+    }
+    Task.update(updateObj, {
+        where: {
+            id: taskId,
+            user_id: user_id,
+        },
+    })
         .then((task) => {
             if (task[0] > 0) {
                 Task.findOne({
