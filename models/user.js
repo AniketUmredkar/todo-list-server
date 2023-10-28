@@ -1,20 +1,30 @@
-const db = require("../utils/database");
+const { Sequelize, DataTypes } = require("sequelize");
 
-module.exports = class User {
-    firstName;
-    lastName;
-    email;
-    password;
-    constructor(firstName, lastName, email, password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-    }
+const sequelize = require("../utils/database");
 
-    save = () => {
-        db.execute(
-            `INSERT INTO users (first_name, last_name, email, password) VALUES (${this.firstName}, ${this.lastName}, ${this.email}, ${this.password})`
-        );
-    };
-};
+const User = sequelize.define("user", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+    },
+    first_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    last_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+});
+
+module.exports = User;
