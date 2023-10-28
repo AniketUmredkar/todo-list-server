@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const Task = require("../models/task");
 
 const user_id = 1;
@@ -5,7 +6,7 @@ const user_id = 1;
 exports.createTaskController = (req, res) => {
     const title = req.body.title;
     if (!title) {
-        res.status(400).send({ message: "Title cannot be empty!" });
+        return res.status(400).send({ message: "Title cannot be empty!" });
     }
     Task.create({ title: title, user_id: user_id })
         .then((task) => {
@@ -24,11 +25,11 @@ exports.getTaskController = (req, res) => {
             id: taskId,
             user_id: user_id,
         },
-        attributes: ["title", "completed", "deleted", "createdAt", "updatedAt"],
+        attributes: ["title", "status", "createdAt", "updatedAt"],
     })
         .then((task) => {
             if (!task) {
-                res.status(200).send({ message: "No data available!" });
+                res.status(400).send({ message: "No data available!" });
             } else {
                 res.status(200).send({ data: task });
             }
@@ -43,9 +44,11 @@ exports.getAllTasksController = (req, res) => {
     Task.findAll({
         where: {
             user_id: user_id,
-            deleted: false,
+            status: {
+                [Op.ne]: "deleted",
+            },
         },
-        attributes: ["title", "completed", "deleted", "createdAt", "updatedAt"],
+        attributes: ["title", "status", "createdAt", "updatedAt"],
     })
         .then((tasks) => {
             res.status(200).send({ data: tasks });
@@ -59,13 +62,22 @@ exports.getAllTasksController = (req, res) => {
 exports.editTaskController = (req, res) => {
     const taskId = req.params.taskId;
     const title = req.body.title;
-    const completed = req.body.completed;
+    const status = req.body.status;
     const updateObj = {};
+    if (title == undefined && status == undefined) {
+        return res.status(400).send({ message: "Incomplete request!" });
+    }
     if (title != undefined) {
+        if (!title) {
+            return res.status(400).send({ message: "Title cannot be empty!" });
+        }
         updateObj.title = title;
     }
-    if (completed != undefined) {
-        updateObj.completed = completed;
+    if (status != undefined) {
+        if (status != "pending" && status != "completed" && status != "deleted") {
+            return res.status(400).send({ message: "Invalid status!" });
+        }
+        updateObj.status = status;
     }
     Task.update(updateObj, {
         where: {
@@ -80,7 +92,7 @@ exports.editTaskController = (req, res) => {
                         id: taskId,
                         user_id: user_id,
                     },
-                    attributes: ["title", "completed", "deleted", "createdAt", "updatedAt"],
+                    attributes: ["title", "status", "createdAt", "updatedAt"],
                 })
                     .then((task) => {
                         res.status(200).send({ data: task });
@@ -102,7 +114,7 @@ exports.editTaskController = (req, res) => {
 exports.deleteTaskController = (req, res) => {
     const taskId = req.params.taskId;
     Task.update(
-        { deleted: true },
+        { status: "deleted" },
         {
             where: {
                 id: taskId,

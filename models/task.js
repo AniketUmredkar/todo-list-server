@@ -13,15 +13,11 @@ const Task = sequelize.define("task", {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    completed: {
-        type: DataTypes.BOOLEAN,
+    status: {
+        type: DataTypes.ENUM,
+        values: ["pending", "completed", "deleted"],
         allowNull: false,
-        defaultValue: false,
-    },
-    deleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        defaultValue: "pending",
     },
     user_id: {
         type: DataTypes.INTEGER,
