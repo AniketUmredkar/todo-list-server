@@ -31,6 +31,9 @@ exports.loginController = (req, res) => {
         },
     })
         .then((user) => {
+            if(user.length == 0){
+                res.status(401).send({message: "unable to login"});
+            }
             res.status(200).send(user[0]);
         })
         .catch((err) => {
