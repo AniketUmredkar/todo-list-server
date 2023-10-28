@@ -1,14 +1,13 @@
 const { Op } = require("sequelize");
 const Task = require("../models/task");
 
-const user_id = 1;
-
 exports.createTaskController = (req, res) => {
     const title = req.body.title;
+    const user = req.user;
     if (!title) {
         return res.status(400).send({ message: "Title cannot be empty!" });
     }
-    Task.create({ title: title, user_id: user_id })
+    Task.create({ title: title, user_id: user.id })
         .then((task) => {
             res.status(200).send({ message: "Task created successfully!", data: task });
         })
@@ -20,10 +19,11 @@ exports.createTaskController = (req, res) => {
 
 exports.getTaskController = (req, res) => {
     const taskId = req.params.taskId;
+    const user = req.user;
     Task.findOne({
         where: {
             id: taskId,
-            user_id: user_id,
+            user_id: user.id,
         },
         attributes: ["title", "status", "createdAt", "updatedAt"],
     })
@@ -41,9 +41,10 @@ exports.getTaskController = (req, res) => {
 };
 
 exports.getAllTasksController = (req, res) => {
+    const user = req.user;
     Task.findAll({
         where: {
-            user_id: user_id,
+            user_id: user.id,
             status: {
                 [Op.ne]: "deleted",
             },
@@ -61,6 +62,7 @@ exports.getAllTasksController = (req, res) => {
 
 exports.editTaskController = (req, res) => {
     const taskId = req.params.taskId;
+    const user = req.user;
     const title = req.body.title;
     const status = req.body.status;
     const updateObj = {};
@@ -82,7 +84,7 @@ exports.editTaskController = (req, res) => {
     Task.update(updateObj, {
         where: {
             id: taskId,
-            user_id: user_id,
+            user_id: user.id,
         },
     })
         .then((task) => {
@@ -90,7 +92,7 @@ exports.editTaskController = (req, res) => {
                 Task.findOne({
                     where: {
                         id: taskId,
-                        user_id: user_id,
+                        user_id: user.id,
                     },
                     attributes: ["title", "status", "createdAt", "updatedAt"],
                 })
@@ -113,12 +115,13 @@ exports.editTaskController = (req, res) => {
 
 exports.deleteTaskController = (req, res) => {
     const taskId = req.params.taskId;
+    const user = req.user;
     Task.update(
         { status: "deleted" },
         {
             where: {
                 id: taskId,
-                user_id: user_id,
+                user_id: user.id,
             },
         }
     )
