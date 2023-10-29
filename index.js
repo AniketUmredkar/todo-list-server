@@ -8,28 +8,28 @@ const { get404 } = require("./controllers/error");
 const sequelize = require("./utils/database");
 const User = require("./models/user");
 const Task = require("./models/task");
-const cors = require('cors');
+const cors = require("cors");
+const session = require("express-session");
 
-app.use(cors({
-    origin: ['http://localhost:3000']
-}));
+app.use(
+    cors({
+        origin: ["http://localhost:3000"],
+    })
+);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// app.use(
+//     session({
+//         secret: "secret",
+//         resave: false,
+//         saveUninitialized: true,
+//     })
+// );
+
 app.use((req, res, next) => {
-    User.findOne({
-        where: {
-            id: 1,
-        },
-    })
-        .then((user) => {
-            req.user = user;
-            next();
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(403).send({ message: "Unidentified user!" });
-        });
+    res.setHeader("Access-Control-Allow-Credentials", true);
+    next();
 });
 
 app.use("/auth", authRoutes);

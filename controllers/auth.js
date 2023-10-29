@@ -21,26 +21,31 @@ exports.signUp = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    console.log(req.body);
     const email = req.body.email;
     const password = req.body.password;
-    User.findAll({
-        attributes: ["first_name", "last_name"],
+    User.findOne({
+        attributes: ["first_name", "last_name", "id"],
         where: {
             email: email,
             password: password,
         },
     })
         .then((user) => {
-            if(user.length == 0){
-                res.status(401).send({message: "unable to login"});
+            if (!user) {
+                return res.status(401).send({ message: "unable to login" });
             }
-            res.status(200).send(user[0]);
+            res.cookie("user_id", user.id, { maxAge: 500000000, httpOnly: true });
+            res.status(200).send(user);
         })
         .catch((err) => {
             console.log(err);
             res.status(400).send({ message: "error" });
         });
+};
+
+exports.loguut = (req, res) => {
+    console.log(req.body);
+    res.status(200).send({ message: "successfull" });
 };
 
 exports.forgotPassword = (req, res) => {
