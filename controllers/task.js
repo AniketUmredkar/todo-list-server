@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Task = require("../models/task");
 
-exports.createTaskController = (req, res) => {
+exports.createTask = (req, res) => {
     const title = req.body.title;
     const user = req.user;
     if (!title) {
@@ -17,7 +17,7 @@ exports.createTaskController = (req, res) => {
         });
 };
 
-exports.getTaskController = (req, res) => {
+exports.getTask = (req, res) => {
     const taskId = req.params.taskId;
     const user = req.user;
     Task.findOne({
@@ -40,7 +40,7 @@ exports.getTaskController = (req, res) => {
         });
 };
 
-exports.getAllTasksController = (req, res) => {
+exports.getAllTasks = (req, res) => {
     const user = req.user;
     Task.findAll({
         where: {
@@ -60,7 +60,7 @@ exports.getAllTasksController = (req, res) => {
         });
 };
 
-exports.editTaskController = (req, res) => {
+exports.editTask = (req, res) => {
     const taskId = req.params.taskId;
     const user = req.user;
     const title = req.body.title;
@@ -113,7 +113,7 @@ exports.editTaskController = (req, res) => {
         });
 };
 
-exports.deleteTaskController = (req, res) => {
+exports.deleteTask = (req, res) => {
     const taskId = req.params.taskId;
     const user = req.user;
     Task.update(

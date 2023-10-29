@@ -1,6 +1,6 @@
 const User = require("../models/user");
 
-exports.signInController = (req, res) => {
+exports.signUp = (req, res) => {
     const first_name = req.body.first_name;
     const last_name = req.body.last_name;
     const email = req.body.email;
@@ -20,7 +20,8 @@ exports.signInController = (req, res) => {
         });
 };
 
-exports.loginController = (req, res) => {
+exports.login = (req, res) => {
+    console.log(req.body);
     const email = req.body.email;
     const password = req.body.password;
     User.findAll({
@@ -42,12 +43,12 @@ exports.loginController = (req, res) => {
         });
 };
 
-exports.forgotPasswordController = (req, res) => {
+exports.forgotPassword = (req, res) => {
     console.log(req.body);
     res.status(200).send({ message: "successfull" });
 };
 
-exports.resetPasswordController = (req, res) => {
+exports.resetPassword = (req, res) => {
     console.log(req.body);
     res.status(200).send({ message: "successfull" });
 };
