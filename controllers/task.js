@@ -49,7 +49,7 @@ exports.getAllTasks = (req, res) => {
                 [Op.ne]: "deleted",
             },
         },
-        attributes: ["title", "status", "createdAt", "updatedAt"],
+        attributes: ["id", "title", "status", "createdAt", "updatedAt"],
     })
         .then((tasks) => {
             res.status(200).send({ data: tasks });

@@ -9,7 +9,7 @@ router.post("/sign-up", upload.none(), authController.signUp);
 
 router.post("/login", upload.none(), authController.login);
 
-router.post("/logout", authController.login);
+router.post("/logout", authController.logout);
 
 router.post("/forgot-password", authController.forgotPassword);
 

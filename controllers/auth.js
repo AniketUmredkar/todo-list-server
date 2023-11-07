@@ -5,18 +5,33 @@ exports.signUp = (req, res) => {
     const last_name = req.body.last_name;
     const email = req.body.email;
     const password = req.body.password;
-    User.create({
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        password: password,
+    User.findOne({
+        where: {
+            email: email,
+        },
     })
-        .then(() => {
-            res.status(200).send({ message: "successfull" });
+        .then((user) => {
+            if (user) {
+                return res.status(400).send({ message: "User with email already exist" });
+            }
+            User.create({
+                first_name: first_name,
+                last_name: last_name,
+                email: email,
+                password: password,
+            })
+                .then((user) => {
+                    res.cookie("user_id", user.id, { maxAge: 500000000, httpOnly: true });
+                    return res.status(200).send({ message: "successfull" });
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return res.send(400).send({ message: "error" });
+                });
         })
         .catch((err) => {
             console.log(err);
-            res.send(400).send({ message: "error" });
+            return res.send(400).send({ message: "error" });
         });
 };
 
@@ -43,8 +58,9 @@ exports.login = (req, res) => {
         });
 };
 
-exports.loguut = (req, res) => {
+exports.logout = (req, res) => {
     console.log(req.body);
+    res.clearCookie("user_id");
     res.status(200).send({ message: "successfull" });
 };
 
