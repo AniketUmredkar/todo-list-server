@@ -1,6 +1,5 @@
 const express = require("express");
 const taskController = require("../controllers/task");
-const { parseCookies } = require("../utils/helpers");
 const User = require("../models/user");
 const multer = require("multer");
 const upload = multer();
