@@ -10,6 +10,15 @@ const User = require("./models/user");
 const Task = require("./models/task");
 const cors = require("cors");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
+
+const sessionStore = new MySQLStore({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "bDBfo5$Alh",
+    database: "to_do_list",
+});
 
 app.use(
     cors({
@@ -20,13 +29,18 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// app.use(
-//     session({
-//         secret: "secret",
-//         resave: false,
-//         saveUninitialized: true,
-//     })
-// );
+app.use(
+    session({
+        secret: "secret",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            maxAge: 5000000,
+        },
+        store: sessionStore,
+    })
+);
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Credentials", true);

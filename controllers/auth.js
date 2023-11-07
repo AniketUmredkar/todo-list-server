@@ -21,7 +21,7 @@ exports.signUp = (req, res) => {
                 password: password,
             })
                 .then((user) => {
-                    res.cookie("user_id", user.id, { maxAge: 500000000, httpOnly: true });
+                    req.session.user_id = user.id;
                     return res.status(200).send({ message: "successfull" });
                 })
                 .catch((err) => {
@@ -49,7 +49,7 @@ exports.login = (req, res) => {
             if (!user) {
                 return res.status(401).send({ message: "unable to login" });
             }
-            res.cookie("user_id", user.id, { maxAge: 500000000, httpOnly: true });
+            req.session.user_id = user.id;
             res.status(200).send(user);
         })
         .catch((err) => {
@@ -60,7 +60,7 @@ exports.login = (req, res) => {
 
 exports.logout = (req, res) => {
     console.log(req.body);
-    res.clearCookie("user_id");
+    req.session.destroy();
     res.status(200).send({ message: "successfull" });
 };
 

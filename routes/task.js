@@ -8,10 +8,10 @@ const upload = multer();
 const router = express.Router();
 
 router.use((req, res, next) => {
-    const parsedCookies = parseCookies(req.headers.cookie);
+    const user_id = req.session.user_id;
     User.findOne({
         where: {
-            id: parsedCookies.user_id,
+            id: user_id,
         },
     })
         .then((user) => {
