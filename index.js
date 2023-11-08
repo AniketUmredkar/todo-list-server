@@ -1,3 +1,7 @@
+const dotenv = require("dotenv");
+const environment = process.env.NODE_ENV || "local";
+dotenv.config({ path: `.env.${environment}` });
+
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -9,10 +13,17 @@ const sequelize = require("./utils/database");
 const User = require("./models/user");
 const Task = require("./models/task");
 const cors = require("cors");
+const morgan = require("morgan");
+const fs = require("fs");
+
+const logFilePath = __dirname + "/access.log";
+const accessLogStream = fs.createWriteStream(logFilePath, { flags: "a" });
+
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(
     cors({
-        origin: ["http://localhost:3000"],
+        origin: [process.env.CLIENT_DOMAIN],
     })
 );
 
@@ -29,7 +40,7 @@ User.hasMany(Task, { foreignKey: "user_id" });
 sequelize
     .sync()
     .then(() => {
-        app.listen(8080);
+        app.listen(process.env.PORT || 8080);
     })
     .catch((err) => {
         console.log(err);

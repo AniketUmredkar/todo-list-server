@@ -102,7 +102,7 @@ exports.login = async (req, res) => {
         }
         const result = await bcrypt.compare(password, user.password);
         if (result) {
-            const token = jwt.sign({ email: user.email, id: user.id }, "todolistsecret", {
+            const token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, {
                 expiresIn: 3600,
             });
             const dto = {

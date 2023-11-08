@@ -14,7 +14,7 @@ router.use(async (req, res, next) => {
         const token = req.headers.authorization.split(" ")[1];
         let decodedToken;
         try {
-            decodedToken = jwt.verify(token, "todolistsecret");
+            decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
             const error = new Error("Unidentified user!");
             error.statusCode = 401;

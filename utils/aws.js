@@ -1,16 +1,16 @@
 const AWS = require("aws-sdk");
 
 AWS.config.update({
-    accessKeyId: "AKIAT5Q3FKCGUMKMJ7UQ",
-    secretAccessKey: "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",
-    region: "ap-south-1",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
 });
 
 const ses = new AWS.SES();
 
 const sendEmail = (subject, userEmail, body) => {
     const params = {
-        Source: "todolist.aniket@gmail.com",
+        Source: process.env.SENDER_EMAIL,
         Destination: {
             ToAddresses: [userEmail],
         },
@@ -41,6 +41,6 @@ exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
 };
 
 exports.sendResetPasswordEmail = (userEmail, resetToken) => {
-    const body = `<p>Click on <a href="http://localhost:3000/reset-password/${resetToken}">this</a> this link to reset password</p>`;
+    const body = `<p>Click on <a href="${process.env.CLIENT_DOMAIN}/reset-password/${resetToken}">this</a> this link to reset password</p>`;
     sendEmail("Reset password", userEmail, body);
 };
