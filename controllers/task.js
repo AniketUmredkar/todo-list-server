@@ -4,9 +4,11 @@ const Task = require("../models/task");
 exports.createTask = (req, res) => {
     const title = req.body.title;
     const user = req.user;
+
     if (!title) {
         return res.status(400).send({ message: "Title cannot be empty!" });
     }
+
     Task.create({ title: title, user_id: user.id })
         .then((task) => {
             res.status(200).send({ message: "Task created successfully!", data: task });
@@ -20,6 +22,7 @@ exports.createTask = (req, res) => {
 exports.getTask = (req, res) => {
     const taskId = req.params.taskId;
     const user = req.user;
+
     Task.findOne({
         where: {
             id: taskId,
@@ -65,7 +68,9 @@ exports.editTask = (req, res) => {
     const user = req.user;
     const title = req.body.title;
     const status = req.body.status;
+
     const updateObj = {};
+
     if (title == undefined && status == undefined) {
         return res.status(400).send({ message: "Incomplete request!" });
     }
@@ -81,6 +86,7 @@ exports.editTask = (req, res) => {
         }
         updateObj.status = status;
     }
+
     Task.update(updateObj, {
         where: {
             id: taskId,
@@ -116,6 +122,7 @@ exports.editTask = (req, res) => {
 exports.deleteTask = (req, res) => {
     const taskId = req.params.taskId;
     const user = req.user;
+
     Task.update(
         { status: "deleted" },
         {

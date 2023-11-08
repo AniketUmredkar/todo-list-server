@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { sendWelcomeEmail, sendResetPasswordEmail } = require("../utils/aws");
 const crypto = require("crypto");
 const { Op } = require("sequelize");
+const { validationResult } = require("express-validator");
 
 exports.signUp = (req, res) => {
     const first_name = req.body.first_name;
@@ -10,6 +11,24 @@ exports.signUp = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirm_password;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    if (!first_name) {
+        return res.status(400).send({ message: "First name cannot be empty" });
+    }
+
+    if (!last_name) {
+        return res.status(400).send({ message: "Last name cannot be empty" });
+    }
+
+    if (!password) {
+        return res.status(400).send({ message: "Password name cannot be empty" });
+    }
+
     User.findOne({
         where: {
             email: email,
@@ -55,6 +74,16 @@ exports.signUp = (req, res) => {
 exports.login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    if (!password) {
+        return res.status(400).send({ message: "Password name cannot be empty" });
+    }
+
     User.findOne({
         where: {
             email: email,
@@ -98,7 +127,12 @@ exports.logout = (req, res) => {
 
 exports.forgotPassword = (req, res) => {
     const email = req.body.email;
-    console.log(email);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
     User.findOne({
         where: {
             email: email,
@@ -138,9 +172,15 @@ exports.resetPassword = (req, res) => {
     const password = req.body.password;
     const confirmPassword = req.body.confirm_password;
     const resetToken = req.body.reset_token;
+
+    if (!password) {
+        return res.status(400).send({ message: "Password name cannot be empty" });
+    }
+
     if (password !== confirmPassword) {
         return res.status(400).send({ message: "Passwords mismatch" });
     }
+
     User.findOne({
         where: {
             reset_token: resetToken,
