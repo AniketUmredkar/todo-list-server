@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const { sendWelcomeEmail } = require("../utils/aws");
 
 exports.signUp = (req, res) => {
     const first_name = req.body.first_name;
@@ -29,6 +30,7 @@ exports.signUp = (req, res) => {
                         password: hashedPassword,
                     })
                         .then((user) => {
+                            sendWelcomeEmail(email, first_name, last_name);
                             req.session.user_id = user.id;
                             return res.status(200).send({ message: "successfull" });
                         })
