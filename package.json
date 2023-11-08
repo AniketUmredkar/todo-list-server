@@ -2,11 +2,11 @@
     "name": "todo-list-server",
     "version": "1.0.0",
     "description": "Server for to-do list app",
-    "main": "index.js",
+    "main": "app.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon index.js",
-        "build": "NODE_ENV=production node index.js"
+        "dev": "nodemon app.js",
+        "build": "NODE_ENV=production node app.js"
     },
     "repository": {
         "type": "git",

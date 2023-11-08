@@ -1,0 +1,28 @@
+version: 0.0.1
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo Installing Node.js and NPM...
+      - npm install -g npm@latest
+  pre_build:
+    commands:
+      - echo Installing application dependencies...
+      - npm install
+  build:
+    commands:
+      - echo Running build tasks...
+      - npm run build
+
+artifacts:
+  files:
+    - app.js
+    - package.json
+    - node_modules/**
+  discard-paths: yes
+
+cache:
+  paths:
+    - node_modules/**/*
