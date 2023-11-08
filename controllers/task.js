@@ -1,147 +1,166 @@
 const { Op } = require("sequelize");
 const Task = require("../models/task");
 
-exports.createTask = (req, res) => {
-    const title = req.body.title;
-    const userId = req.userId;
+exports.createTask = async (req, res) => {
+    try {
+        const title = req.body.title;
+        const userId = req.userId;
 
-    if (!title) {
-        return res.status(400).send({ message: "Title cannot be empty!" });
-    }
-
-    Task.create({ title: title, user_id: userId })
-        .then((task) => {
-            res.status(200).send({ message: "Task created successfully!", data: task });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400).send({ message: "Something went wrong. Please try again!" });
-        });
-};
-
-exports.getTask = (req, res) => {
-    const taskId = req.params.taskId;
-    const userId = req.userId;
-
-    Task.findOne({
-        where: {
-            id: taskId,
-            user_id: userId,
-        },
-        attributes: ["title", "status", "createdAt", "updatedAt"],
-    })
-        .then((task) => {
-            if (!task) {
-                res.status(400).send({ message: "No data available!" });
-            } else {
-                res.status(200).send({ data: task });
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400).send({ message: "Something went wrong. Please try again!" });
-        });
-};
-
-exports.getAllTasks = (req, res) => {
-    const userId = req.userId;
-
-    Task.findAll({
-        where: {
-            user_id: userId,
-            status: {
-                [Op.ne]: "deleted",
-            },
-        },
-        attributes: ["id", "title", "status", "createdAt", "updatedAt"],
-    })
-        .then((tasks) => {
-            res.status(200).send({ data: tasks });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400).send({ message: "Something went wrong. Please try again!" });
-        });
-};
-
-exports.editTask = (req, res) => {
-    const taskId = req.params.taskId;
-    const userId = req.userId;
-    const title = req.body.title;
-    const status = req.body.status;
-
-    const updateObj = {};
-
-    if (title == undefined && status == undefined) {
-        return res.status(400).send({ message: "Incomplete request!" });
-    }
-    if (title != undefined) {
         if (!title) {
-            return res.status(400).send({ message: "Title cannot be empty!" });
+            const error = new Error("Title cannot be empty!");
+            error.statusCode = 400;
+            throw error;
         }
-        updateObj.title = title;
-    }
-    if (status != undefined) {
-        if (status != "pending" && status != "completed" && status != "deleted") {
-            return res.status(400).send({ message: "Invalid status!" });
-        }
-        updateObj.status = status;
-    }
 
-    Task.update(updateObj, {
-        where: {
-            id: taskId,
-            user_id: userId,
-        },
-    })
-        .then((task) => {
-            if (task[0] > 0) {
-                Task.findOne({
-                    where: {
-                        id: taskId,
-                        user_id: userId,
-                    },
-                    attributes: ["title", "status", "createdAt", "updatedAt"],
-                })
-                    .then((task) => {
-                        res.status(200).send({ data: task });
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        res.status(400).send({ message: "Something went wrong. Please try again!" });
-                    });
-            } else {
-                res.status(400).send({ message: "No such task exists!" });
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400).send({ message: "Something went wrong. Please try again!" });
-        });
+        const task = await Task.create({ title: title, user_id: userId });
+        res.status(200).json({ message: "Task created successfully!", data: task });
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
 };
 
-exports.deleteTask = (req, res) => {
-    const taskId = req.params.taskId;
-    const userId = req.userId;
+exports.getTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const userId = req.userId;
 
-    Task.update(
-        { status: "deleted" },
-        {
+        const task = await Task.findOne({
             where: {
                 id: taskId,
                 user_id: userId,
             },
-        }
-    )
-        .then((task) => {
-            if (task[0] > 0) {
-                res.status(200).send({ message: "Task deleted successfully!" });
-            } else {
-                res.status(400).send({ message: "No such task exists!" });
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400).send({ message: "Something went wrong. Please try again!" });
+            attributes: ["title", "status", "createdAt", "updatedAt"],
         });
+
+        if (!task) {
+            const error = new Error("No data available!");
+            error.statusCode = 400;
+            throw error;
+        }
+
+        res.status(200).json({ data: task });
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
+};
+
+exports.getAllTasks = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const tasks = await Task.findAll({
+            where: {
+                user_id: userId,
+                status: {
+                    [Op.ne]: "deleted",
+                },
+            },
+            attributes: ["id", "title", "status", "createdAt", "updatedAt"],
+        });
+        res.status(200).json({ data: tasks });
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
+};
+
+exports.editTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const userId = req.userId;
+        const title = req.body.title;
+        const status = req.body.status;
+
+        const updateObj = {};
+
+        if (title == undefined && status == undefined) {
+            const error = new Error("Incomplete request!");
+            error.statusCode = 400;
+            throw error;
+        }
+        if (title != undefined) {
+            if (!title) {
+                const error = new Error("Title cannot be empty!");
+                error.statusCode = 400;
+                throw error;
+            }
+            updateObj.title = title;
+        }
+        if (status != undefined) {
+            if (status != "pending" && status != "completed" && status != "deleted") {
+                const error = new Error("Invalid status!");
+                error.statusCode = 400;
+                throw error;
+            }
+            updateObj.status = status;
+        }
+
+        const task = await Task.update(updateObj, {
+            where: {
+                id: taskId,
+                user_id: userId,
+            },
+        });
+        if (task[0] > 0) {
+            const task = await Task.findOne({
+                where: {
+                    id: taskId,
+                    user_id: userId,
+                },
+                attributes: ["title", "status", "createdAt", "updatedAt"],
+            });
+            res.status(200).json({ data: task });
+        } else {
+            const error = new Error("No such task exists!");
+            error.statusCode = 400;
+            throw error;
+        }
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
+};
+
+exports.deleteTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const userId = req.userId;
+
+        const task = await Task.update(
+            { status: "deleted" },
+            {
+                where: {
+                    id: taskId,
+                    user_id: userId,
+                },
+            }
+        );
+        if (task[0] > 0) {
+            res.status(200).json({ message: "Task deleted successfully!" });
+        } else {
+            const error = new Error("No such task exists!");
+            error.statusCode = 400;
+            throw error;
+        }
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
 };
