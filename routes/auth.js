@@ -11,7 +11,7 @@ router.post("/login", upload.none(), authController.login);
 
 router.post("/logout", authController.logout);
 
-router.post("/forgot-password", authController.forgotPassword);
+router.post("/forgot-password", upload.none(), authController.forgotPassword);
 
 router.post("/reset-password", upload.none(), authController.resetPassword);
 

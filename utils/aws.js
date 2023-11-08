@@ -8,7 +8,7 @@ AWS.config.update({
 
 const ses = new AWS.SES();
 
-exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
+const sendEmail = (subject, userEmail, body) => {
     const params = {
         Source: "todolist.aniket@gmail.com",
         Destination: {
@@ -16,11 +16,11 @@ exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
         },
         Message: {
             Subject: {
-                Data: "Welcome to Our App",
+                Data: subject,
             },
             Body: {
-                Text: {
-                    Data: `Welcome ${firstName} ${lastName}`,
+                Html: {
+                    Data: body,
                 },
             },
         },
@@ -33,4 +33,14 @@ exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
             console.log("Email sent:", data);
         }
     });
+};
+
+exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
+    const body = `Welcome ${firstName} ${lastName}`;
+    sendEmail("Welcome to Our App", userEmail, body);
+};
+
+exports.sendResetPasswordEmail = (userEmail, resetToken) => {
+    const body = `<p>Click on <a href="http://localhost:3000/reset-password/${resetToken}">this</a> this link to reset password</p>`;
+    sendEmail("Reset password", userEmail, body);
 };
