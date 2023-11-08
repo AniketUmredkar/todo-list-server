@@ -1,34 +1,47 @@
-const http = require("http");
+const dotenv = require("dotenv");
+const environment = process.env.NODE_ENV || "local";
+dotenv.config({ path: `.env.${environment}` });
+
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+const authRoutes = require("./routes/auth");
+const taskRoutes = require("./routes/task");
+const { get404 } = require("./controllers/error");
+const sequelize = require("./utils/database");
+const User = require("./models/user");
+const Task = require("./models/task");
+const cors = require("cors");
+const morgan = require("morgan");
 const fs = require("fs");
 
-const server = http.createServer((req, res) => {
-    if (req.method == "GET" && req.url == "/") {
-        res.write("<div>Home</div>");
-        return res.end();
-    } else if (req.method == "GET" && req.url == "/form") {
-        res.write("<div>");
-        res.write("<form method='POST' action='/form-submit'>");
-        res.write("<input placeholder='message' type='text' name='message'/>");
-        res.write("<button type='submit'>Submit</button>");
-        res.write("</form>");
-        res.write("</div>");
-        return res.end();
-    } else if (req.method == "POST" && req.url == "/form-submit") {
-        const buffer = [];
-        req.on("data", (chunk) => {
-            buffer.push(chunk);
-        });
-        req.on("end", () => {
-            const parsedData = Buffer.concat(buffer).toString();
-            const message = parsedData.split("=")[1];
-            fs.writeFileSync("message.txt", message);
-        });
-        res.statusCode = 302;
-        res.setHeader("Location", "/");
-        return res.end();
-    }
-    res.write("<div>Error</div>");
-    res.end();
-});
+const logFilePath = __dirname + "/access.log";
+const accessLogStream = fs.createWriteStream(logFilePath, { flags: "a" });
 
-server.listen(8080);
+app.use(morgan("combined", { stream: accessLogStream }));
+
+app.use(
+    cors({
+        origin: [process.env.CLIENT_DOMAIN],
+    })
+);
+
+app.use(bodyParser.json());
+
+app.use("/auth", authRoutes);
+
+app.use("/task", taskRoutes);
+
+app.use(get404);
+
+User.hasMany(Task, { foreignKey: "user_id" });
+
+sequelize
+    .sync()
+    .then(() => {
+        app.listen(process.env.PORT || 8080);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
