@@ -1,7 +1,5 @@
 const express = require("express");
 const taskController = require("../controllers/task");
-const multer = require("multer");
-const upload = multer();
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
@@ -33,11 +31,11 @@ router.use(async (req, res, next) => {
     }
 });
 
-router.post("/create", upload.none(), taskController.createTask);
+router.post("/create", taskController.createTask);
 
 router.get("/:taskId", taskController.getTask);
 
-router.put("/:taskId", upload.none(), taskController.editTask);
+router.put("/:taskId", taskController.editTask);
 
 router.delete("/:taskId", taskController.deleteTask);
 
