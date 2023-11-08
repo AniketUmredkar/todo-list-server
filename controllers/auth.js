@@ -4,6 +4,7 @@ const { sendWelcomeEmail, sendResetPasswordEmail } = require("../utils/aws");
 const crypto = require("crypto");
 const { Op } = require("sequelize");
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 exports.signUp = (req, res) => {
     const first_name = req.body.first_name;
@@ -52,7 +53,6 @@ exports.signUp = (req, res) => {
                     })
                         .then((user) => {
                             sendWelcomeEmail(email, first_name, last_name);
-                            req.session.user_id = user.id;
                             return res.status(200).send({ message: "successfull" });
                         })
                         .catch((err) => {
@@ -81,7 +81,7 @@ exports.login = (req, res) => {
     }
 
     if (!password) {
-        return res.status(400).send({ message: "Password name cannot be empty" });
+        return res.status(400).json({ message: "Password name cannot be empty" });
     }
 
     User.findOne({
@@ -91,27 +91,32 @@ exports.login = (req, res) => {
     })
         .then((user) => {
             if (!user) {
-                return res.status(400).send({ message: "Email not registered" });
+                return res.status(400).json({ message: "Email not registered" });
             }
             bcrypt
                 .compare(password, user.password)
                 .then((result) => {
                     if (result) {
-                        req.session.user_id = user.id;
-                        const userDto = {
-                            first_name: user.first_name,
-                            last_name: user.last_name,
-                            email: user.email,
-                            id: user.id,
+                        const token = jwt.sign({ email: user.email, id: user.id }, "todolistsecret", { expiresIn: 3600 });
+                        console.log(token);
+                        const dto = {
+                            token: token,
+                            data: {
+                                first_name: user.first_name,
+                                last_name: user.last_name,
+                                email: user.email,
+                                id: user.id,
+                            },
                         };
-                        res.status(200).send(userDto);
+                        res.status(200).json(dto);
                     } else {
+                        console.log(res);
                         return res.status(400).send({ message: "Password incorrect" });
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    return res.status(400).send({ message: "error" });
+                    return res.status(400).json({ message: "error" });
                 });
         })
         .catch((err) => {
@@ -121,7 +126,6 @@ exports.login = (req, res) => {
 };
 
 exports.logout = (req, res) => {
-    req.session.destroy();
     res.status(200).send({ message: "successfull" });
 };
 

@@ -3,13 +3,13 @@ const Task = require("../models/task");
 
 exports.createTask = (req, res) => {
     const title = req.body.title;
-    const user = req.user;
+    const userId = req.userId;
 
     if (!title) {
         return res.status(400).send({ message: "Title cannot be empty!" });
     }
 
-    Task.create({ title: title, user_id: user.id })
+    Task.create({ title: title, user_id: userId })
         .then((task) => {
             res.status(200).send({ message: "Task created successfully!", data: task });
         })
@@ -21,12 +21,12 @@ exports.createTask = (req, res) => {
 
 exports.getTask = (req, res) => {
     const taskId = req.params.taskId;
-    const user = req.user;
+    const userId = req.userId;
 
     Task.findOne({
         where: {
             id: taskId,
-            user_id: user.id,
+            user_id: userId,
         },
         attributes: ["title", "status", "createdAt", "updatedAt"],
     })
@@ -44,10 +44,11 @@ exports.getTask = (req, res) => {
 };
 
 exports.getAllTasks = (req, res) => {
-    const user = req.user;
+    const userId = req.userId;
+
     Task.findAll({
         where: {
-            user_id: user.id,
+            user_id: userId,
             status: {
                 [Op.ne]: "deleted",
             },
@@ -65,7 +66,7 @@ exports.getAllTasks = (req, res) => {
 
 exports.editTask = (req, res) => {
     const taskId = req.params.taskId;
-    const user = req.user;
+    const userId = req.userId;
     const title = req.body.title;
     const status = req.body.status;
 
@@ -90,7 +91,7 @@ exports.editTask = (req, res) => {
     Task.update(updateObj, {
         where: {
             id: taskId,
-            user_id: user.id,
+            user_id: userId,
         },
     })
         .then((task) => {
@@ -98,7 +99,7 @@ exports.editTask = (req, res) => {
                 Task.findOne({
                     where: {
                         id: taskId,
-                        user_id: user.id,
+                        user_id: userId,
                     },
                     attributes: ["title", "status", "createdAt", "updatedAt"],
                 })
@@ -121,14 +122,14 @@ exports.editTask = (req, res) => {
 
 exports.deleteTask = (req, res) => {
     const taskId = req.params.taskId;
-    const user = req.user;
+    const userId = req.userId;
 
     Task.update(
         { status: "deleted" },
         {
             where: {
                 id: taskId,
-                user_id: user.id,
+                user_id: userId,
             },
         }
     )
