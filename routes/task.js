@@ -6,21 +6,20 @@ const upload = multer();
 
 const router = express.Router();
 
-router.use((req, res, next) => {
-    const user_id = req.session.user_id;
-    User.findOne({
-        where: {
-            id: user_id,
-        },
-    })
-        .then((user) => {
-            req.user = user;
-            next();
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(403).send({ message: "Unidentified user!" });
+router.use(async (req, res, next) => {
+    try {
+        const user_id = req.session.user_id;
+        const user = await User.findOne({
+            where: {
+                id: user_id,
+            },
         });
+        req.user = user;
+        next();
+    } catch (err) {
+        console.log(err);
+        res.status(401).send({ message: "Unidentified user!" });
+    }
 });
 
 router.post("/create", upload.none(), taskController.createTask);

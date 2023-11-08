@@ -62,7 +62,7 @@ exports.login = (req, res) => {
     })
         .then((user) => {
             if (!user) {
-                return res.status(401).send({ message: "Email not registered" });
+                return res.status(400).send({ message: "Email not registered" });
             }
             bcrypt
                 .compare(password, user.password)
@@ -77,7 +77,7 @@ exports.login = (req, res) => {
                         };
                         res.status(200).send(userDto);
                     } else {
-                        return res.status(401).send({ message: "Password incorrect" });
+                        return res.status(400).send({ message: "Password incorrect" });
                     }
                 })
                 .catch((err) => {
