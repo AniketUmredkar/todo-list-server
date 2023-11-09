@@ -15,6 +15,7 @@ const Task = require("./models/task");
 const cors = require("cors");
 const morgan = require("morgan");
 const fs = require("fs");
+const { fetchSecretFromSecretsManager } = require("./utils/aws");
 
 const logFilePath = __dirname + "/access.log";
 const accessLogStream = fs.createWriteStream(logFilePath, { flags: "a" });
@@ -40,7 +41,13 @@ User.hasMany(Task, { foreignKey: "user_id" });
 sequelize
     .sync()
     .then(() => {
-        app.listen(process.env.PORT || 8080);
+        fetchSecretFromSecretsManager(environment)
+            .then(() => {
+                app.listen(process.env.PORT || 8080);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     })
     .catch((err) => {
         console.log(err);

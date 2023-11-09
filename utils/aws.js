@@ -1,9 +1,9 @@
 const AWS = require("aws-sdk");
 
 AWS.config.update({
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
-    region: process.env.MY_AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
 });
 
 const ses = new AWS.SES();
@@ -43,4 +43,26 @@ exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
 exports.sendResetPasswordEmail = (userEmail, resetToken) => {
     const body = `<p>Click on <a href="${process.env.CLIENT_DOMAIN}/reset-password/${resetToken}">this</a> this link to reset password</p>`;
     sendEmail("Reset password", userEmail, body);
+};
+
+exports.fetchSecretFromSecretsManager = async (env) => {
+    if (env !== "production") {
+        return;
+    }
+    const secretsManager = new AWS.SecretsManager();
+
+    try {
+        const data = await secretsManager.getSecretValue({ SecretId: "to-do-app-secret" }).promise();
+        const secrets = JSON.parse(data.SecretString);
+
+        process.env.AWS_ACCESS_KEY_ID = secrets.AWS_ACCESS_KEY_ID;
+        process.env.AWS_SECRET_ACCESS_KEY = secrets.AWS_SECRET_ACCESS_KEY;
+        process.env.AWS_REGION = secrets.AWS_REGION;
+        process.env.DATABASE_USER = secrets.DATABASE_USER;
+        process.env.DATABASE_PASSWORD = secrets.DATABASE_PASSWORD;
+        process.env.JWT_SECRET = secrets.JWT_SECRET;
+    } catch (error) {
+        console.error("Error fetching secret:", error);
+        throw error;
+    }
 };
