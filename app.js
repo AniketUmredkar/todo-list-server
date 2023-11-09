@@ -9,7 +9,7 @@ const app = express();
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/task");
 const { get404 } = require("./controllers/error");
-const sequelize = require("./utils/database");
+const getSequelize = require("./utils/database");
 const User = require("./models/user");
 const Task = require("./models/task");
 const cors = require("cors");
@@ -40,8 +40,7 @@ User.hasMany(Task, { foreignKey: "user_id" });
 
 fetchSecretFromSecretsManager(environment)
     .then(() => {
-        console.log(process.env);
-        sequelize
+        getSequelize()
             .sync()
             .then(() => {
                 app.listen(process.env.PORT || 8080);
