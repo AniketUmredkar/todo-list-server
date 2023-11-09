@@ -20,7 +20,7 @@ git checkout master
 git pull
 
 npm install
-npm install -g pm2
+sudo npm install -g pm2
 
 pm2 stop all
 pm2 delete all
