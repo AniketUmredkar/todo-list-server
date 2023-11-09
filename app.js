@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 const { fetchSecretFromSecretsManager } = require("./utils/aws");
 const environment = process.env.NODE_ENV || "local";
 dotenv.config({ path: `.env.${environment}` });
-fetchSecretFromSecretsManager(process.env.NODE_ENV);
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -39,11 +38,21 @@ app.use(get404);
 
 User.hasMany(Task, { foreignKey: "user_id" });
 
-sequelize
-    .sync()
+fetchSecretFromSecretsManager(environment)
     .then(() => {
-        app.listen(process.env.PORT || 8080);
+        // Now initialize Sequelize after setting environment variables
+        sequelize
+            .sync()
+            .then(() => {
+                app.listen(process.env.PORT || 8080);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     })
-    .catch((err) => {
-        console.log(err);
+    .then(() => {
+        console.log("Connection has been established successfully.");
+    })
+    .catch((error) => {
+        console.error("Error during initialization:", error);
     });
