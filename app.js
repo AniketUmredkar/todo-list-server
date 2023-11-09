@@ -38,16 +38,20 @@ app.use(get404);
 
 User.hasMany(Task, { foreignKey: "user_id" });
 
-fetchSecretFromSecretsManager(process.env.NODE_ENV)
-  .then(() => {
-    // Initialize Sequelize after setting environment variables
-    return sequelize.sync();
-  })
-  .then(() => {
-    console.log('Connection has been established successfully.');
-    // Continue with the rest of your application logic
-    app.listen(process.env.PORT || 8080);
-  })
-  .catch((error) => {
-    console.error('Error during initialization:', error);
-  });
+fetchSecretFromSecretsManager(environment)
+    .then(() => {
+        sequelize
+            .sync()
+            .then(() => {
+                app.listen(process.env.PORT || 8080);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    })
+    .then(() => {
+        console.log("Connection has been established successfully.");
+    })
+    .catch((error) => {
+        console.error("Error during initialization:", error);
+    });
