@@ -9,7 +9,7 @@ const app = express();
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/task");
 const { get404 } = require("./controllers/error");
-const getSequelize = require("./utils/database");
+const sequelize = require("./utils/database");
 const User = require("./models/user");
 const Task = require("./models/task");
 const cors = require("cors");
@@ -38,17 +38,36 @@ app.use(get404);
 
 User.hasMany(Task, { foreignKey: "user_id" });
 
-fetchSecretFromSecretsManager(environment)
-    .then(() => {
-        getSequelize()
-            .sync()
-            .then(() => {
-                app.listen(process.env.PORT || 8080);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+(async () => {
+    try {
+      // Fetch secrets before establishing the database connection
+      await fetchSecretFromSecretsManager(environment);
+  
+      // Synchronize Sequelize models with the database
+      await sequelize.sync();
+  
+      // Start the Express.js server
+      const port = process.env.PORT || 8080;
+      app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+      });
+    } catch (error) {
+      console.error("Error setting up the application:", error);
+      process.exit(1);
+    }
+  })();
+
+// fetchSecretFromSecretsManager(environment)
+//     .then(() => {
+//         sequelize
+//             .sync()
+//             .then(() => {
+//                 app.listen(process.env.PORT || 8080);
+//             })
+//             .catch((err) => {
+//                 console.log(err);
+//             });
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
