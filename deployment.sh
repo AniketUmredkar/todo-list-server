@@ -1,5 +1,6 @@
 sudo yum update -y
 sudo yum install -y nodejs npm
+sudo yum install git
 
 directory="todo-list-server"
 repository_url="https://github.com/AniketUmredkar/todo-list-server.git"
