@@ -39,16 +39,10 @@ app.use(get404);
 
 User.hasMany(Task, { foreignKey: "user_id" });
 
-fetchSecretFromSecretsManager(environment)
+sequelize
+    .sync()
     .then(() => {
-        sequelize
-            .sync()
-            .then(() => {
-                app.listen(process.env.PORT || 8080);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        app.listen(process.env.PORT || 8080);
     })
     .catch((err) => {
         console.log(err);
