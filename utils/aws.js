@@ -49,7 +49,7 @@ exports.fetchSecretFromSecretsManager = async (env) => {
     if (env !== "production") {
         return;
     }
-    const secretsManager = new AWS.SecretsManager();
+    const secretsManager = new AWS.SecretsManager({ region: process.env.AWS_REGION });
 
     try {
         const data = await secretsManager.getSecretValue({ SecretId: "to-do-app-secret" }).promise();
@@ -57,7 +57,6 @@ exports.fetchSecretFromSecretsManager = async (env) => {
 
         process.env.AWS_ACCESS_KEY_ID = secrets.AWS_ACCESS_KEY_ID;
         process.env.AWS_SECRET_ACCESS_KEY = secrets.AWS_SECRET_ACCESS_KEY;
-        process.env.AWS_REGION = secrets.AWS_REGION;
         process.env.DATABASE_USER = secrets.DATABASE_USER;
         process.env.DATABASE_PASSWORD = secrets.DATABASE_PASSWORD;
         process.env.JWT_SECRET = secrets.JWT_SECRET;
