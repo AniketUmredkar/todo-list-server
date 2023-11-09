@@ -16,8 +16,14 @@ fi
 
 cd $directory
 
+git checkout master
+git pull
+
 npm install
 npm install -g pm2
+
+pm2 stop all
+pm2 delete all
 
 secrets=$(aws secretsmanager get-secret-value --secret-id to-do-app-secret --region ap-south-1 --output json)
 
