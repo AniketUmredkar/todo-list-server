@@ -40,6 +40,7 @@ User.hasMany(Task, { foreignKey: "user_id" });
 
 fetchSecretFromSecretsManager(environment)
     .then(() => {
+        console.log(process.env);
         sequelize
             .sync()
             .then(() => {
