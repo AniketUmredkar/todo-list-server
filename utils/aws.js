@@ -54,6 +54,7 @@ exports.fetchSecretFromSecretsManager = async (env) => {
     try {
         const data = await secretsManager.getSecretValue({ SecretId: "to-do-app-secret" }).promise();
         const secrets = JSON.parse(data.SecretString);
+        console.log("secrets:", secrets);
 
         process.env.AWS_ACCESS_KEY_ID = secrets.AWS_ACCESS_KEY_ID;
         process.env.AWS_SECRET_ACCESS_KEY = secrets.AWS_SECRET_ACCESS_KEY;
