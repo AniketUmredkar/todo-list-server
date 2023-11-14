@@ -6,7 +6,7 @@ AWS.config.update({
     region: process.env.AWS_REGION,
 });
 
-const ses = new AWS.SES({ region: "ap-south-1" });
+const ses = new AWS.SES();
 
 const sendEmail = (subject, userEmail, body) => {
     const params = {

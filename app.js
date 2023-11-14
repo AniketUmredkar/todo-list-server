@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
-const { fetchSecretFromSecretsManager } = require("./utils/aws");
 const environment = process.env.NODE_ENV || "local";
 dotenv.config({ path: `.env.${environment}` });
+const { fetchSecretFromSecretsManager } = require("./utils/aws");
 
 const express = require("express");
 const bodyParser = require("body-parser");
