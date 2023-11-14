@@ -24,7 +24,7 @@ app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(
     cors({
-        origin: [process.env.CLIENT_DOMAIN],
+        origin: [process.env.CLIENT_DOMAIN, process.env.CLIENT_DOMAIN_S3],
     })
 );
 
