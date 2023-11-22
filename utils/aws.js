@@ -41,7 +41,7 @@ exports.sendWelcomeEmail = (userEmail, firstName, lastName) => {
 };
 
 exports.sendResetPasswordEmail = (userEmail, resetToken) => {
-    const body = `<p>Click on <a href="${process.env.CLIENT_DOMAIN}/reset-password/${resetToken}">this</a> this link to reset password</p>`;
+    const body = `<p>Click on <a href="${process.env.CLIENT_DOMAIN_S3}/reset-password/${resetToken}">this</a> this link to reset password</p>`;
     sendEmail("Reset password", userEmail, body);
 };
 
