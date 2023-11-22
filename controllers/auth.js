@@ -216,3 +216,40 @@ exports.resetPassword = async (req, res) => {
         res.status(err.statusCode).json({ message: err.message });
     }
 };
+
+exports.getUserData = async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            const error = new Error("Token missing!");
+            error.statusCode = 400;
+            throw error;
+        }
+        const token = req.headers.authorization.split(" ")[1];
+        let decodedToken;
+        try {
+            decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            const error = new Error("Unidentified user!");
+            error.statusCode = 401;
+            throw error;
+        }
+        const user = await User.findOne({
+            attributes: ["first_name", "last_name", "email"],
+            where: {
+                id: decodedToken.id,
+            },
+        });
+        if (!user) {
+            const error = new Error("Unidentified user!");
+            error.statusCode = 401;
+            throw error;
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            return res.status(500).json({ message: "Unexpected error occured!" });
+        }
+        res.status(err.statusCode).json({ message: err.message });
+    }
+};

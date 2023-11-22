@@ -8,12 +8,10 @@ router.post("/sign-up", check("email").isEmail().withMessage("Invalid email addr
 
 router.post("/login", check("email").isEmail().withMessage("Invalid email address"), authController.login);
 
-router.post(
-    "/forgot-password",
-    check("email").isEmail().withMessage("Invalid email address"),
-    authController.forgotPassword
-);
+router.post("/forgot-password", check("email").isEmail().withMessage("Invalid email address"), authController.forgotPassword);
 
 router.post("/reset-password", authController.resetPassword);
+
+router.get("/", authController.getUserData);
 
 module.exports = router;

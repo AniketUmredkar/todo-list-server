@@ -27,7 +27,7 @@ router.use(async (req, res, next) => {
         if (!err.statusCode) {
             return res.status(500).json({ message: "Unexpected error occured!" });
         }
-        res.status(err.statusCode).send({ message: err.message });
+        res.status(err.statusCode).json({ message: err.message });
     }
 });
 
